@@ -44,7 +44,7 @@ define("tinymce/tableplugin/Dialogs", [
 		}
 
 		function createStyleForm(dom) {
-			return {
+			var styleForm = {
 				title: 'Advanced',
 				type: 'form',
 				defaults: {
@@ -52,13 +52,13 @@ define("tinymce/tableplugin/Dialogs", [
 						updateStyle(dom, this.parents().reverse()[0], this.name() == "style");
 					}
 				},
-				items: [
+				items: (editor.settings.table_disable_style_field ? [] : [
 					{
 						label: 'Style',
 						name: 'style',
 						type: 'textbox'
-					},
-
+					}
+        ]).concat([
 					{
 						type: 'form',
 						padding: 0,
@@ -69,24 +69,25 @@ define("tinymce/tableplugin/Dialogs", [
 						defaults: {
 							size: 7
 						},
-						items: [
+						items: (editor.settings.table_disable_border_color ? [] : [
 							{
 								label: 'Border color',
 								type: 'colorbox',
 								name: 'borderColor',
 								onaction: createColorPickAction()
-							},
-
+							}
+            ]).concat([
 							{
 								label: 'Background color',
 								type: 'colorbox',
 								name: 'backgroundColor',
 								onaction: createColorPickAction()
 							}
-						]
+						])
 					}
-				]
+				])
 			};
+      return styleForm;
 		}
 
 		function removePxSuffix(size) {
@@ -368,18 +369,25 @@ define("tinymce/tableplugin/Dialogs", [
 						items: (editor.settings.table_appearance_options !== false) ? [
 							colsCtrl,
 							rowsCtrl,
-							{label: 'Width', name: 'width'},
-							{label: 'Height', name: 'height'},
+							{label: 'Width', name: 'width'}
+            ].concat(editor.settings.table_disable_height ? [] : [
+							{label: 'Height', name: 'height'}
+            ]).concat(editor.settings.table_disable_cellspacing ? [
+							{label: 'Cell padding', name: 'cellpadding'},
+							{label: 'Border', name: 'border'}
+            ] : [
 							{label: 'Cell spacing', name: 'cellspacing'},
 							{label: 'Cell padding', name: 'cellpadding'},
-							{label: 'Border', name: 'border'},
-							{label: 'Caption', name: 'caption', type: 'checkbox'}
-						] : [
+							{label: 'Border', name: 'border'}
+            ]).concat(editor.settings.table_disable_caption ? [] : [
+              {label: 'Caption', name: 'caption', type: 'checkbox'}
+            ]) : [
 							colsCtrl,
 							rowsCtrl,
-							{label: 'Width', name: 'width'},
+							{label: 'Width', name: 'width'}
+            ].concat(editor.settings.table_disable_height ? [] : [
 							{label: 'Height', name: 'height'}
-						]
+            ])
 					},
 
 					{
@@ -582,8 +590,10 @@ define("tinymce/tableplugin/Dialogs", [
 							maxWidth: 50
 						},
 						items: [
-							{label: 'Width', name: 'width'},
-							{label: 'Height', name: 'height'},
+							{label: 'Width', name: 'width'}
+            ].concat(editor.settings.table_disable_height ? [] : [
+							{label: 'Height', name: 'height'}
+            ]).concat([
 							{
 								label: 'Cell type',
 								name: 'type',
@@ -639,7 +649,7 @@ define("tinymce/tableplugin/Dialogs", [
 									{text: 'Bottom', value: 'bottom'}
 								]
 							}
-						]
+						])
 					},
 
 					classListCtrl

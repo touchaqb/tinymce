@@ -32,9 +32,10 @@ define("tinymce/pasteplugin/Clipboard", [
 	"tinymce/dom/RangeUtils",
 	"tinymce/util/VK",
 	"tinymce/pasteplugin/Utils",
+	"tinymce/pasteplugin/RTFUtils",
 	"tinymce/pasteplugin/SmartPaste",
 	"tinymce/util/Delay"
-], function(Env, RangeUtils, VK, Utils, SmartPaste, Delay) {
+], function(Env, RangeUtils, VK, Utils, RTFUtils, SmartPaste, Delay) {
 	return function(editor) {
 		var self = this, pasteBinElm, lastRng, keyboardPasteTimeStamp = 0, draggingInternally = false;
 		var pasteBinDefaultContent = '%MCEPASTEBIN%', keyboardPastePlainTextState;
@@ -48,10 +49,10 @@ define("tinymce/pasteplugin/Clipboard", [
 		 *
 		 * @param {String} html HTML code to paste into the current selection.
 		 */
-		function pasteHtml(html) {
+		function pasteHtml(html, rtfImages) {
 			var args, dom = editor.dom;
 
-			args = editor.fire('BeforePastePreProcess', {content: html}); // Internal event used by Quirks
+			args = editor.fire('BeforePastePreProcess', {content: html, rtfImages: rtfImages}); // Internal event used by Quirks
 			args = editor.fire('PastePreProcess', args);
 			html = args.content;
 
@@ -536,10 +537,16 @@ define("tinymce/pasteplugin/Clipboard", [
 					return;
 				}
 
+        var rtfImages = [];
+        if (hasContentType(clipboardContent, 'text/rtf')) {
+          var rtfData = clipboardContent['text/rtf'];
+          rtfImages = RTFUtils.getImagesFromRtf(rtfData);
+        }
+
 				if (plainTextMode) {
 					pasteText(content);
 				} else {
-					pasteHtml(content);
+					pasteHtml(content, rtfImages);
 				}
 			}
 

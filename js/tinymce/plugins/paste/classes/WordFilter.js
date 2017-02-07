@@ -349,7 +349,7 @@ define("tinymce/pasteplugin/WordFilter", [
 
 					// Remove comments, scripts (e.g., msoShowComment), XML tag, VML content,
 					// MS Office namespaced tags, and a few other tags
-					/<(!|script[^>]*>.*?<\/script(?=[>\s])|\/?(\?xml(:\w+)?|img|meta|link|style|\w:\w+)(?=[\s\/>]))[^>]*>/gi,
+					/<(!|script[^>]*>.*?<\/script(?=[>\s])|\/?(\?xml(:\w+)?|meta|link|style|\w:\w+)(?=[\s\/>]))[^>]*>/gi,
 
 					// Convert <s> into <strike> for line-though
 					[/<(\/?)s>/gi, "<$1strike>"],
@@ -439,6 +439,17 @@ define("tinymce/pasteplugin/WordFilter", [
 						nodes[i].remove();
 					}
 				});
+
+        domParser.addNodeFilter('img', function(nodes) {
+          for (var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            var src = node.attr('src');
+            if (src.substring(0, 5) == 'file:') {
+              node.attr('src', 'data:image/' + e.rtfImages[i].format +
+                        ';base64,' + e.rtfImages[i].base64data);
+            }
+          }
+        });
 
 				// Keep some of the links and anchors
 				domParser.addNodeFilter('a', function(nodes) {

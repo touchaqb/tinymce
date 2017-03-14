@@ -418,9 +418,9 @@ test('paste nested (OL) word list', function() {
 		editor.getContent(),
 		'<ol>' +
 			'<li>a' +
-				'<ol>' +
+				'<ol type="a">' +
 					'<li>b' +
-						'<ol>' +
+						'<ol type=\"i\">' +
 							'<li>c</li>' +
 						'</ol>' +
 					'</li>' +

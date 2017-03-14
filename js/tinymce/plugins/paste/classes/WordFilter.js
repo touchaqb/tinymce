@@ -67,19 +67,19 @@ define("tinymce/pasteplugin/WordFilter", [
 
   var numericPatterns = [
     // Numeric lists
-			{regex: /^[0-9]+\.[ \u00a0]/, parse: parseInt},
-    // Alphabetical a-z
-			{regex: /^[a-z]{1,2}[\.\)][ \u00a0]/, parse: alphaToNum},
-    // Alphabetical A-Z
-			{regex: /^[A-Z]{1,2}[\.\)][ \u00a0]/, parse: alphaToNum},
+			{regex: /^[0-9]+\.[ \u00a0]/, parse: parseInt, htmlAttrName: 'none'},
     // Roman upper case
-			{regex: /^[IVXLMCD]{1,2}\.[ \u00a0]/, parse: fromRoman},
+			{regex: /^[IVXLMCD]{1,3}\.[ \u00a0]/, parse: fromRoman, htmlAttrName: 'I'},
     // Roman lower case
-			{regex: /^[ivxlmcd]{1,2}\.[ \u00a0]/, parse: fromRoman},
+			{regex: /^[ivxlmcd]{1,3}\.[ \u00a0]/, parse: fromRoman, htmlAttrName: 'i'},
+    // Alphabetical a-z
+			{regex: /^[a-z]{1,2}[\.\)][ \u00a0]/, parse: alphaToNum, htmlAttrName: 'a'},
+    // Alphabetical A-Z
+			{regex: /^[A-Z]{1,2}[\.\)][ \u00a0]/, parse: alphaToNum, htmlAttrName: 'A'},
     // Japanese
-			{regex: /^[\u3007\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d]+\.[ \u00a0]/, parse: null},
+			{regex: /^[\u3007\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d]+\.[ \u00a0]/, parse: null, htmlAttrName: null},
     // Chinese
-			{regex: /^[\u58f1\u5f10\u53c2\u56db\u4f0d\u516d\u4e03\u516b\u4e5d\u62fe]+\.[ \u00a0]/, parse: null}
+			{regex: /^[\u58f1\u5f10\u53c2\u56db\u4f0d\u516d\u4e03\u516b\u4e5d\u62fe]+\.[ \u00a0]/, parse: null, htmlAttrName: null}
 	];
 
 	/**
@@ -175,7 +175,7 @@ define("tinymce/pasteplugin/WordFilter", [
 					}
 				}
 
-				function convertParagraphToLi(paragraphNode, listName, start) {
+				function convertParagraphToLi(paragraphNode, listName, start, olType) {
 					var level = paragraphNode._listLevel || lastLevel;
 
 					// Handle list nesting
@@ -199,6 +199,9 @@ define("tinymce/pasteplugin/WordFilter", [
 						if (start > 1) {
 							currentListNode.attr('start', '' + start);
 						}
+            if (olType && olType != 'none') {
+              currentListNode.attr('type', olType);
+            }
 
 						paragraphNode.wrap(currentListNode);
 					} else {
@@ -251,7 +254,8 @@ define("tinymce/pasteplugin/WordFilter", [
 						// Detect ordered lists 1., a. or ixv.
 						if (isNumericList(nodeText)) {
               var start = parseOlStartNumber(nodeText);
-							convertParagraphToLi(node, 'ol', start);
+              var type = parseOlType(nodeText);
+							convertParagraphToLi(node, 'ol', start, type);
 							continue;
 						}
 
@@ -274,8 +278,7 @@ define("tinymce/pasteplugin/WordFilter", [
 			}
 
       function parseOlStartNumber(nodeText) {
-				// Parse OL start number
-
+        nodeText = nodeText.replace(/^[\u00a0 ]+/, '');
         var start = 1;
         Tools.each(numericPatterns, function(pattern) {
           if (pattern.regex.test(nodeText)) {
@@ -285,6 +288,19 @@ define("tinymce/pasteplugin/WordFilter", [
         });
 
         return start;
+      }
+
+      function parseOlType(nodeText) {
+        nodeText = nodeText.replace(/^[\u00a0 ]+/, '');
+        var type = 'none';
+        Tools.each(numericPatterns, function(pattern) {
+          if (pattern.regex.test(nodeText)) {
+            type = pattern.htmlAttrName;
+            return false;
+          }
+        });
+
+        return type;
       }
 
 			function filterStyles(node, styleValue) {

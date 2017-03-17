@@ -112,6 +112,71 @@ define("tinymce/pasteplugin/Clipboard", [
 			pasteHtml(text);
 		}
 
+		function insertClipboardContent(clipboardContent, isKeyBoardPaste, plainTextMode) {
+			var content;
+
+			// Grab HTML from Clipboard API or paste bin as a fallback
+			if (hasContentType(clipboardContent, 'text/html')) {
+				content = clipboardContent['text/html'];
+			} else {
+				content = getPasteBinHtml();
+
+				// If paste bin is empty try using plain text mode
+				// since that is better than nothing right
+				if (content == pasteBinDefaultContent) {
+					plainTextMode = true;
+				}
+			}
+
+			content = Utils.trimHtml(content);
+
+			// WebKit has a nice bug where it clones the paste bin if you paste from for example notepad
+			// so we need to force plain text mode in this case
+			if (pasteBinElm && pasteBinElm.firstChild && pasteBinElm.firstChild.id === 'mcepastebin') {
+				plainTextMode = true;
+			}
+
+			removePasteBin();
+
+			// If we got nothing from clipboard API and pastebin then we could try the last resort: plain/text
+			if (!content.length) {
+				plainTextMode = true;
+			}
+
+			// Grab plain text from Clipboard API or convert existing HTML to plain text
+			if (plainTextMode) {
+				// Use plain text contents from Clipboard API unless the HTML contains paragraphs then
+				// we should convert the HTML to plain text since works better when pasting HTML/Word contents as plain text
+				if (hasContentType(clipboardContent, 'text/plain') && content.indexOf('</p>') == -1) {
+					content = clipboardContent['text/plain'];
+				} else {
+					content = Utils.innerText(content);
+				}
+			}
+
+			// If the content is the paste bin default HTML then it was
+			// impossible to get the cliboard data out.
+			if (content == pasteBinDefaultContent) {
+				if (!isKeyBoardPaste) {
+					editor.windowManager.alert('Please use Ctrl+V/Cmd+V keyboard shortcuts to paste contents.');
+				}
+
+				return;
+			}
+
+      var rtfImages = [];
+      if (hasContentType(clipboardContent, 'text/rtf')) {
+        var rtfData = clipboardContent['text/rtf'];
+        rtfImages = RTFUtils.getImagesFromRtf(rtfData);
+      }
+
+			if (plainTextMode) {
+				pasteText(content);
+			} else {
+				pasteHtml(content, rtfImages);
+			}
+		}
+
 		/**
 		 * Creates a paste bin element as close as possible to the current caret location and places the focus inside that element
 		 * so that when the real paste event occurs the contents gets inserted into this element
@@ -485,71 +550,6 @@ define("tinymce/pasteplugin/Clipboard", [
 				}
 			});
 
-			function insertClipboardContent(clipboardContent, isKeyBoardPaste, plainTextMode) {
-				var content;
-
-				// Grab HTML from Clipboard API or paste bin as a fallback
-				if (hasContentType(clipboardContent, 'text/html')) {
-					content = clipboardContent['text/html'];
-				} else {
-					content = getPasteBinHtml();
-
-					// If paste bin is empty try using plain text mode
-					// since that is better than nothing right
-					if (content == pasteBinDefaultContent) {
-						plainTextMode = true;
-					}
-				}
-
-				content = Utils.trimHtml(content);
-
-				// WebKit has a nice bug where it clones the paste bin if you paste from for example notepad
-				// so we need to force plain text mode in this case
-				if (pasteBinElm && pasteBinElm.firstChild && pasteBinElm.firstChild.id === 'mcepastebin') {
-					plainTextMode = true;
-				}
-
-				removePasteBin();
-
-				// If we got nothing from clipboard API and pastebin then we could try the last resort: plain/text
-				if (!content.length) {
-					plainTextMode = true;
-				}
-
-				// Grab plain text from Clipboard API or convert existing HTML to plain text
-				if (plainTextMode) {
-					// Use plain text contents from Clipboard API unless the HTML contains paragraphs then
-					// we should convert the HTML to plain text since works better when pasting HTML/Word contents as plain text
-					if (hasContentType(clipboardContent, 'text/plain') && content.indexOf('</p>') == -1) {
-						content = clipboardContent['text/plain'];
-					} else {
-						content = Utils.innerText(content);
-					}
-				}
-
-				// If the content is the paste bin default HTML then it was
-				// impossible to get the cliboard data out.
-				if (content == pasteBinDefaultContent) {
-					if (!isKeyBoardPaste) {
-						editor.windowManager.alert('Please use Ctrl+V/Cmd+V keyboard shortcuts to paste contents.');
-					}
-
-					return;
-				}
-
-        var rtfImages = [];
-        if (hasContentType(clipboardContent, 'text/rtf')) {
-          var rtfData = clipboardContent['text/rtf'];
-          rtfImages = RTFUtils.getImagesFromRtf(rtfData);
-        }
-
-				if (plainTextMode) {
-					pasteText(content);
-				} else {
-					pasteHtml(content, rtfImages);
-				}
-			}
-
 			var getLastRng = function() {
 				return lastRng || editor.selection.getRng();
 			};
@@ -665,6 +665,7 @@ define("tinymce/pasteplugin/Clipboard", [
 		self.pasteHtml = pasteHtml;
 		self.pasteText = pasteText;
 		self.pasteImageData = pasteImageData;
+		self.insertClipboardContent = insertClipboardContent;
 
 		editor.on('preInit', function() {
 			registerEventHandlers();

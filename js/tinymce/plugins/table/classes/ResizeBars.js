@@ -752,7 +752,7 @@ define("tinymce/tableplugin/ResizeBars", [
 				newTotalHeight += newTotalHeight[i];
 			}
 
-			var newCellSizes = recalculateCellHeights(tableGrid, newHeights);
+			// var newCellSizes = recalculateCellHeights(tableGrid, newHeights);
 			var newRowSizes = recalculateRowHeights(tableGrid, newHeights);
 
 			editor.undoManager.transact(function() {
@@ -762,10 +762,10 @@ define("tinymce/tableplugin/ResizeBars", [
 					editor.dom.setAttrib(row.element, 'height', null);
 				});
 
-				Tools.each(newCellSizes, function(cell) {
-					editor.dom.setStyle(cell.element, 'height', cell.height + 'px');
-					editor.dom.setAttrib(cell.element, 'height', null);
-				});
+				// Tools.each(newCellSizes, function(cell) {
+					// editor.dom.setStyle(cell.element, 'height', cell.height + 'px');
+					// editor.dom.setAttrib(cell.element, 'height', null);
+				// });
 
 				editor.dom.setStyle(table, 'height', newTotalHeight + 'px');
 				editor.dom.setAttrib(table, 'height', null);

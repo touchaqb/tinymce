@@ -477,7 +477,7 @@ define("tinymce/tableplugin/Dialogs", [
 						setAttrib(cellElm, 'style', data.style);
 						setAttrib(cellElm, 'class', data['class']);
 						setStyle(cellElm, 'width', addSizeSuffix(data.width));
-						setStyle(cellElm, 'height', addSizeSuffix(data.height));
+						// setStyle(cellElm, 'height', addSizeSuffix(data.height));
 
 						// Switch cell type
 						if (data.type && cellElm.nodeName.toLowerCase() !== data.type) {

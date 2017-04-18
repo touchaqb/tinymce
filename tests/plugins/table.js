@@ -379,13 +379,12 @@
 		});
 
 		fillAndSubmitWindowForm({
-			width: 100,
-			height: 101
+			width: 100
 		});
 
 		equal(
 			cleanTableHtml(editor.getContent()),
-			'<table><tbody><tr><td style="width: 100px; height: 101px;">x</td></tr></tbody></table>'
+			'<table><tbody><tr><td style="width: 100px;">x</td></tr></tbody></table>'
 		);
 	});
 
@@ -414,7 +413,6 @@
 
 		fillAndSubmitWindowForm({
 			"align": "right",
-			"height": "11",
 			"scope": "row",
 			"type": "th",
 			"width": "10"
@@ -422,7 +420,7 @@
 
 		equal(
 			cleanTableHtml(editor.getContent()),
-			'<table><tbody><tr><th style="width: 10px; height: 11px; text-align: right;" scope="row">x</th></tr></tbody></table>'
+			'<table><tbody><tr><th style="width: 10px; text-align: right;" scope="row">x</th></tr></tbody></table>'
 		);
 	});
 
@@ -451,25 +449,6 @@
 			"borderColor": "",
 			"style": ""
 		}, 'Should not contain width');
-
-		fillAndSubmitWindowForm({
-			"height": "20"
-		});
-
-		equal(
-			cleanTableHtml(editor.getContent()),
-			(
-				'<table>' +
-					'<tbody>' +
-						'<tr>' +
-							'<td style="width: 10px; height: 20px;">a</td>' +
-							'<td style="width: 20px; height: 20px;">b</td>' +
-						'</tr>' +
-					'</tbody>' +
-				'</table>'
-			),
-			'Width should be retained height should be changed'
-		);
 	});
 
 	test("Table row properties dialog (get data from plain cell)", function() {
@@ -1798,24 +1777,24 @@
 			'<table border=\"1\">' +
 			'<tbody>' +
 			'<tr style=\"height: 70px;\">' +
-			'<th style=\"width: 20px; height: 70px;\">A0</th>' +
-			'<th style=\"width: 20px; height: 70px;\">A1</th>' +
-			'<th style=\"width: 20px; height: 70px;\">A2</th>' +
-			'<th style=\"width: 40px; height: 70px;\">A3</th>' +
-			'<th style=\"width: 10px; height: 70px;\">A4</th>' +
+			'<th style=\"height: 20px; width: 20px;\">A0</th>' +
+			'<th style=\"height: 20px; width: 20px;\">A1</th>' +
+			'<th style=\"height: 20px; width: 20px;\">A2</th>' +
+			'<th style=\"height: 20px; width: 40px;\">A3</th>' +
+			'<th style=\"height: 20px; width: 10px;\">A4</th>' +
 			'</tr>' +
 			'<tr style=\"height: 20px;\">' +
-			'<td style=\"width: 20px; height: 20px;\">B0</td>' +
-			'<td style=\"width: 20px; height: 20px;\">B1</td>' +
-			'<td style=\"width: 20px; height: 20px;\">B2</td>' +
-			'<td style=\"width: 40px; height: 20px;\">B3</td>' +
-			'<td style=\"width: 10px; height: 40px;\" rowspan=\"2\">B3</td>' +
+			'<td style=\"height: 20px; width: 20px;\">B0</td>' +
+			'<td style=\"height: 20px; width: 20px;\">B1</td>' +
+			'<td style=\"height: 20px; width: 20px;\">B2</td>' +
+			'<td style=\"height: 20px; width: 40px;\">B3</td>' +
+			'<td style=\"height: 20px; width: 10px;\" rowspan=\"2\">B3</td>' +
 			'</tr>' +
 			'<tr style=\"height: 20px;\">' +
-			'<td style=\"width: 20px; height: 20px;\">C0</td>' +
-			'<td style=\"width: 20px; height: 20px;\">C1</td>' +
-			'<td style=\"width: 20px; height: 20px;\">C2</td>' +
-			'<td style=\"width: 40px; height: 20px;\">C3</td>' +
+			'<td style=\"height: 20px; width: 20px;\">C0</td>' +
+			'<td style=\"height: 20px; width: 20px;\">C1</td>' +
+			'<td style=\"height: 20px; width: 20px;\">C2</td>' +
+			'<td style=\"height: 20px; width: 40px;\">C3</td>' +
 			'</tr>' +
 			'</tbody>' +
 			'</table>');
@@ -1830,24 +1809,24 @@
 			'<table border=\"1\">' +
 			'<tbody>' +
 			'<tr style=\"height: 20px;\">' +
-			'<th style=\"width: 20px; height: 20px;\">A0</th>' +
-			'<th style=\"width: 20px; height: 20px;\">A1</th>' +
-			'<th style=\"width: 20px; height: 20px;\">A2</th>' +
-			'<th style=\"width: 40px; height: 20px;\">A3</th>' +
-			'<th style=\"width: 10px; height: 20px;\">A4</th>' +
+			'<th style=\"height: 20px; width: 20px;\">A0</th>' +
+			'<th style=\"height: 20px; width: 20px;\">A1</th>' +
+			'<th style=\"height: 20px; width: 20px;\">A2</th>' +
+			'<th style=\"height: 20px; width: 40px;\">A3</th>' +
+			'<th style=\"height: 20px; width: 10px;\">A4</th>' +
 			'</tr>' +
 			'<tr style=\"height: 70px;\">' +
-			'<td style=\"width: 20px; height: 70px;\">B0</td>' +
-			'<td style=\"width: 20px; height: 70px;\">B1</td>' +
-			'<td style=\"width: 20px; height: 70px;\">B2</td>' +
-			'<td style=\"width: 40px; height: 70px;\">B3</td>' +
-			'<td style=\"width: 10px; height: 90px;\" rowspan=\"2\">B3</td>' +
+			'<td style=\"height: 20px; width: 20px;\">B0</td>' +
+			'<td style=\"height: 20px; width: 20px;\">B1</td>' +
+			'<td style=\"height: 20px; width: 20px;\">B2</td>' +
+			'<td style=\"height: 20px; width: 40px;\">B3</td>' +
+			'<td style=\"height: 20px; width: 10px;\" rowspan=\"2\">B3</td>' +
 			'</tr>' +
 			'<tr style=\"height: 20px;\">' +
-			'<td style=\"width: 20px; height: 20px;\">C0</td>' +
-			'<td style=\"width: 20px; height: 20px;\">C1</td>' +
-			'<td style=\"width: 20px; height: 20px;\">C2</td>' +
-			'<td style=\"width: 40px; height: 20px;\">C3</td>' +
+			'<td style=\"height: 20px; width: 20px;\">C0</td>' +
+			'<td style=\"height: 20px; width: 20px;\">C1</td>' +
+			'<td style=\"height: 20px; width: 20px;\">C2</td>' +
+			'<td style=\"height: 20px; width: 40px;\">C3</td>' +
 			'</tr>' +
 			'</tbody>' +
 			'</table>');
@@ -1862,24 +1841,24 @@
 			'<table border=\"1\">' +
 			'<tbody>' +
 			'<tr style=\"height: 20px;\">' +
-			'<th style=\"width: 20px; height: 20px;\">A0</th>' +
-			'<th style=\"width: 20px; height: 20px;\">A1</th>' +
-			'<th style=\"width: 20px; height: 20px;\">A2</th>' +
-			'<th style=\"width: 40px; height: 20px;\">A3</th>' +
-			'<th style=\"width: 10px; height: 20px;\">A4</th>' +
+			'<th style=\"height: 20px; width: 20px;\">A0</th>' +
+			'<th style=\"height: 20px; width: 20px;\">A1</th>' +
+			'<th style=\"height: 20px; width: 20px;\">A2</th>' +
+			'<th style=\"height: 20px; width: 40px;\">A3</th>' +
+			'<th style=\"height: 20px; width: 10px;\">A4</th>' +
 			'</tr>' +
 			'<tr style=\"height: 20px;\">' +
-			'<td style=\"width: 20px; height: 20px;\">B0</td>' +
-			'<td style=\"width: 20px; height: 20px;\">B1</td>' +
-			'<td style=\"width: 20px; height: 20px;\">B2</td>' +
-			'<td style=\"width: 40px; height: 20px;\">B3</td>' +
-			'<td style=\"width: 10px; height: 90px;\" rowspan=\"2\">B3</td>' +
+			'<td style=\"height: 20px; width: 20px;\">B0</td>' +
+			'<td style=\"height: 20px; width: 20px;\">B1</td>' +
+			'<td style=\"height: 20px; width: 20px;\">B2</td>' +
+			'<td style=\"height: 20px; width: 40px;\">B3</td>' +
+			'<td style=\"height: 20px; width: 10px;\" rowspan=\"2\">B3</td>' +
 			'</tr>' +
 			'<tr style=\"height: 70px;\">' +
-			'<td style=\"width: 20px; height: 70px;\">C0</td>' +
-			'<td style=\"width: 20px; height: 70px;\">C1</td>' +
-			'<td style=\"width: 20px; height: 70px;\">C2</td>' +
-			'<td style=\"width: 40px; height: 70px;\">C3</td>' +
+			'<td style=\"height: 20px; width: 20px;\">C0</td>' +
+			'<td style=\"height: 20px; width: 20px;\">C1</td>' +
+			'<td style=\"height: 20px; width: 20px;\">C2</td>' +
+			'<td style=\"height: 20px; width: 40px;\">C3</td>' +
 			'</tr>' +
 			'</tbody>' +
 			'</table>');

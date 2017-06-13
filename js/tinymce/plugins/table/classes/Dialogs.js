@@ -52,13 +52,12 @@ define("tinymce/tableplugin/Dialogs", [
 						updateStyle(dom, this.parents().reverse()[0], this.name() == "style");
 					}
 				},
-				items: (editor.settings.table_disable_style_field ? [] : [
+				items: [
 					{
 						label: 'Style',
 						name: 'style',
 						type: 'textbox'
-					}
-        ]).concat([
+					},
 					{
 						type: 'form',
 						padding: 0,
@@ -69,25 +68,24 @@ define("tinymce/tableplugin/Dialogs", [
 						defaults: {
 							size: 7
 						},
-						items: (editor.settings.table_disable_border_color ? [] : [
+						items: [
 							{
 								label: 'Border color',
 								type: 'colorbox',
 								name: 'borderColor',
 								onaction: createColorPickAction()
-							}
-            ]).concat([
+							},
 							{
 								label: 'Background color',
 								type: 'colorbox',
 								name: 'backgroundColor',
 								onaction: createColorPickAction()
 							}
-						])
+						]
 					}
-				])
+				]
 			};
-      return styleForm;
+			return styleForm;
 		}
 
 		function removePxSuffix(size) {
@@ -164,6 +162,9 @@ define("tinymce/tableplugin/Dialogs", [
 
 			if (css["background-color"]) {
 				data.backgroundColor = css["background-color"];
+				if (editor.settings.table_custom_bg_color) {
+					data.customBackgroundColor = css["background-color"];
+				}
 			}
 
 			data.style = dom.serializeStyle(css);
@@ -237,11 +238,20 @@ define("tinymce/tableplugin/Dialogs", [
 							}
 						}
 					} else {
-						editor.dom.setAttribs(tableElm, {
+						var tableAttribs = {
 							border: data.border,
 							cellpadding: data.cellpadding,
 							cellspacing: data.cellspacing
-						});
+						};
+						if (editor.settings.table_toggleable_border) {
+							tableAttribs['border'] = data.customBorder ? '1' : 0;
+						}
+
+						editor.dom.setAttribs(tableElm, tableAttribs);
+
+						if (editor.settings.table_custom_bg_color) {
+							editor.dom.setStyle(tableElm, 'background-color', data.customBackgroundColor);
+						}
 					}
 
 					if (dom.getAttrib(tableElm, 'width') && !editor.settings.table_style_by_css) {
@@ -311,6 +321,8 @@ define("tinymce/tableplugin/Dialogs", [
 							getTDTHOverallStyle(tableElm, 'padding'),
 						border: dom.getAttrib(tableElm, 'data-mce-border') || dom.getAttrib(tableElm, 'border') ||
 							getTDTHOverallStyle(tableElm, 'border'),
+						customBorder: parseInt(dom.getAttrib(tableElm, 'data-mce-border') || dom.getAttrib(tableElm, 'border') ||
+															getTDTHOverallStyle(tableElm, 'border'), 10) ? true : false,
 						borderColor: dom.getAttrib(tableElm, 'data-mce-border-color'),
 						caption: !!dom.select('caption', tableElm)[0],
 						'class': dom.getAttrib(tableElm, 'class')
@@ -370,24 +382,31 @@ define("tinymce/tableplugin/Dialogs", [
 							colsCtrl,
 							rowsCtrl,
 							{label: 'Width', name: 'width'}
-            ].concat(editor.settings.table_disable_height ? [] : [
+						].concat(editor.settings.table_disable_height ? [] : [
 							{label: 'Height', name: 'height'}
-            ]).concat(editor.settings.table_disable_cellspacing ? [
-							{label: 'Cell padding', name: 'cellpadding'},
-							{label: 'Border', name: 'border'}
-            ] : [
+						]).concat([
 							{label: 'Cell spacing', name: 'cellspacing'},
 							{label: 'Cell padding', name: 'cellpadding'},
-							{label: 'Border', name: 'border'}
-            ]).concat(editor.settings.table_disable_caption ? [] : [
-              {label: 'Caption', name: 'caption', type: 'checkbox'}
-            ]) : [
+							{label: 'Border', name: 'border'},
+							{label: 'Caption', name: 'caption', type: 'checkbox'}
+						]) : [
 							colsCtrl,
 							rowsCtrl,
 							{label: 'Width', name: 'width'}
-            ].concat(editor.settings.table_disable_height ? [] : [
+						].concat(editor.settings.table_toggleable_border ? [
+							{label: 'Border', name: 'customBorder', type: 'checkbox'}] : []
+										).concat(editor.settings.table_disable_height ? [] : [
 							{label: 'Height', name: 'height'}
-            ])
+						]).concat(editor.settings.table_custom_bg_color ? [
+							{
+								label: 'Background color',
+								type: 'colorbox',
+								name: 'customBackgroundColor',
+								minWidth: 100,
+								maxWidth: null,
+								onaction: createColorPickAction()
+							}
+						] : [])
 					},
 
 					{
@@ -407,8 +426,8 @@ define("tinymce/tableplugin/Dialogs", [
 				]
 			};
 
+			appendStylesToData(dom, data, tableElm);
 			if (editor.settings.table_advtab !== false) {
-				appendStylesToData(dom, data, tableElm);
 
 				editor.windowManager.open({
 					title: "Table properties",
@@ -478,6 +497,9 @@ define("tinymce/tableplugin/Dialogs", [
 						setAttrib(cellElm, 'class', data['class']);
 						setStyle(cellElm, 'width', addSizeSuffix(data.width));
 						// setStyle(cellElm, 'height', addSizeSuffix(data.height));
+						if (editor.settings.table_custom_bg_color) {
+							setStyle(cellElm, 'background-color', data.customBackgroundColor);
+						}
 
 						// Switch cell type
 						if (data.type && cellElm.nodeName.toLowerCase() !== data.type) {
@@ -648,8 +670,17 @@ define("tinymce/tableplugin/Dialogs", [
 									{text: 'Middle', value: 'middle'},
 									{text: 'Bottom', value: 'bottom'}
 								]
-							}
-						])
+							}]).concat(editor.settings.table_custom_bg_color ? [
+								{
+									label: 'Background color',
+									type: 'colorbox',
+									name: 'customBackgroundColor',
+									minWidth: 100,
+									maxWidth: null,
+									onaction: createColorPickAction()
+								}
+							] : []
+						)
 					},
 
 					classListCtrl

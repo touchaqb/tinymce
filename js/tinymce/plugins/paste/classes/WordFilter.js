@@ -508,8 +508,12 @@ define("tinymce/pasteplugin/WordFilter", [
             var node = nodes[i];
             var src = node.attr('src');
             if (src.substring(0, 5) == 'file:') {
-              node.attr('src', 'data:image/' + e.rtfImages[i].format +
-                        ';base64,' + e.rtfImages[i].base64data);
+              if (e.rtfImages[i] != null) {
+                node.attr('src', 'data:image/' + e.rtfImages[i].format +
+                          ';base64,' + e.rtfImages[i].base64data);
+              } else {
+                node.parent.remove(node);
+              }
             }
           }
         });

@@ -168,6 +168,16 @@ define("tinymce/pasteplugin/Clipboard", [
       if (hasContentType(clipboardContent, 'text/rtf')) {
         var rtfData = clipboardContent['text/rtf'];
         rtfImages = RTFUtils.getImagesFromRtf(rtfData);
+
+        if (editor.settings.insert_image_cb) {
+          rtfImages.forEach(function(img) {
+            // TODO: Formatar URL base64!
+            editor.settings.insert_image_cb(img.base64data, function(x) {
+              pasteHtml(content, rtfImages);
+            });
+          });
+          return;
+        }
       }
 
 			if (plainTextMode) {
